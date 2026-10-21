@@ -15,3 +15,8 @@ frontend/dist/
 
 # Documentos privados MOD-05
 backend/private-media/
+
+# Spring Boot MOD-05
+backend-mod05/target/
+backend-mod05/.env
+backend-mod05/private-media/

@@ -42,7 +42,7 @@ copy .env.example .env
 npm run dev
 ```
 
-El servidor de Vite reenvía `/api` a `http://localhost:8000`, así que el back-end debe estar levantado.
+Vite reenvía `/api/v1` a Django en `http://localhost:8000` y `/api/tercerizados` a Spring Boot en `http://localhost:8080`; iniciar el servicio del módulo que se quiera usar.
 
 ## 4. Cambio de fuente de datos
 
@@ -61,6 +61,12 @@ Cambia `DATA_SOURCE` en `backend/.env` (`mock` o `db`). Es la única variable qu
 - Librería de mapas e iconos.
 - Exportación (RF-REP-009).
 
-## MOD-05 · Atenciones tercerizadas
+## MOD-05 · Atenciones tercerizadas (Spring Boot)
 
-El backend incluye una app independiente para RF-SER-003/004/005/006/011. Usa PostgreSQL y autenticación Django; se habilita con `TERCERIZADOS_ENABLED=True`, sin cambiar los mocks de MOD-06. Ver [instalación, API, migraciones y TODO](backend/tercerizados/README.md).
+La implementación de RF-SER-003/004/005/006/011 está en **backend-mod05/**: Java 21, Spring Boot, Spring Security, JDBC, PostgreSQL y Flyway. La app Django anterior de MOD-05 fue retirada; no se migran sus datos ni usuarios. Crear una base nueva para Spring.
+
+- MOD-05: puerto 8080, `/api/tercerizados/`.
+- MOD-06: continúa en Django (`backend/`), puerto 8000, `/api/v1/`.
+- Frontend: Vite reenvía cada ruta al servicio correspondiente. Los contratos de la API de MOD-05 se conservan, incluidos `/me/`, filtros y nombres descriptivos.
+
+[Instalación, precarga, API, pruebas y TODO de MOD-05](backend-mod05/README.md).
