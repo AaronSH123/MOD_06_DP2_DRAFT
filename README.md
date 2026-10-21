@@ -60,3 +60,7 @@ Cambia `DATA_SOURCE` en `backend/.env` (`mock` o `db`). Es la única variable qu
 - Ampliación de TipoSugerenciaIA.
 - Librería de mapas e iconos.
 - Exportación (RF-REP-009).
+
+## MOD-05 · Atenciones tercerizadas
+
+El backend incluye una app independiente para RF-SER-003/004/005/006/011. Usa PostgreSQL y autenticación Django; se habilita con `TERCERIZADOS_ENABLED=True`, sin cambiar los mocks de MOD-06. Ver [instalación, API, migraciones y TODO](backend/tercerizados/README.md).

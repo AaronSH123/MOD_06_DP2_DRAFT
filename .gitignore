@@ -12,3 +12,6 @@ frontend/dist/
 
 # Sistema
 .DS_Store
+
+# Documentos privados MOD-05
+backend/private-media/
