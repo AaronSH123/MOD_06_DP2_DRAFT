@@ -1,6 +1,6 @@
 # MOD-05 — Spring Boot / Java
 
-Backend independiente para RF-SER-003, RF-SER-004, RF-SER-005, RF-SER-006 y RF-SER-011. Reemplaza la app Django `tercerizados`. MOD-06 permanece en `../backend/` con su comportamiento anterior.
+Backend independiente para RF-SER-003, RF-SER-004, RF-SER-005, RF-SER-006 y RF-SER-011. Reemplaza la app Django `tercerizados`. Comparte el back-end `backend/` con el MOD-06, que conserva su comportamiento anterior.
 
 ## Arranque local
 
@@ -8,7 +8,7 @@ Requisitos: JDK 21 y PostgreSQL 14 o posterior. No hace falta instalar Maven: `.
 
 Crear una **base nueva**, por ejemplo `areas_verdes_mod05`, y un usuario propietario. No reutilizar el esquema Django ni sus usuarios. No se realiza conversión de datos antiguos.
 
-Desde `backend-mod05/`:
+Desde `backend/`:
 
 ```sh
 cp .env.example .env
@@ -26,10 +26,10 @@ Para precargar los catálogos y usuarios demostrativos, configurar `MOD05_DEMO_P
 
 La precarga solo se activa con el perfil `dev` y el flag explícito. Usuarios: `mod05_jefe`, `mod05_ingeniero`, `mod05_practicante`, con la contraseña indicada. No se imprime la contraseña. Repetir la precarga no cambia usuarios/roles/contraseñas existentes y rechaza colisiones en los catálogos en vez de sobrescribirlas. No importa atenciones históricas. Conserva las vigencias originales de los contratos de ejemplo, válidas en 2026.
 
-- Servicio: `http://localhost:8080`.
-- API: `http://localhost:8080/api/tercerizados/`.
-- Swagger: `http://localhost:8080/api/tercerizados/docs`.
-- OpenAPI: `http://localhost:8080/api/tercerizados/schema`.
+- Servicio: `http://localhost:8000`.
+- API: `http://localhost:8000/api/tercerizados/`.
+- Swagger: `http://localhost:8000/api/tercerizados/docs` (documentación común, también en `/api/docs`).
+- OpenAPI: `http://localhost:8000/api/tercerizados/schema` (también en `/api/schema`).
 
 Para generar el ejecutable sin correr pruebas de integración:
 
@@ -54,7 +54,7 @@ Se mantiene el contrato consumido por React:
 
 Los usuarios nuevos son independientes de los anteriores de Django. La sesión guardada en el navegador puede contener credenciales antiguas: cerrar sesión y volver a ingresar con los usuarios precargados de Spring.
 
-El frontend conserva `VITE_API_TERCERIZADOS_URL=/api/tercerizados`. Su proxy Vite envía `/api/tercerizados` y `/swagger-ui` a 8080; las demás rutas `/api` van a Django en 8000. Para un despliegue se necesita el mismo enrutamiento en el reverse proxy. No se habilita CORS abierto. HTTP Basic se usa sobre HTTPS fuera de localhost; no hay sesiones/cookies ni endpoint que emita tokens. La futura integración con MOD-01 queda pendiente.
+El frontend conserva `VITE_API_TERCERIZADOS_URL=/api/tercerizados`. Su proxy Vite envía `/api/tercerizados`, `/swagger-ui` y las demás rutas `/api` al back-end en 8000. Para un despliegue se necesita el mismo enrutamiento en el reverse proxy. No se habilita CORS abierto. HTTP Basic se usa sobre HTTPS fuera de localhost; no hay sesiones/cookies ni endpoint que emita tokens. La futura integración con MOD-01 queda pendiente.
 
 ## API y reglas
 
@@ -137,7 +137,7 @@ curl --user mod05_jefe \
   -F 'fecha_recepcion=2026-10-21' \
   -F 'documentos=[{"categoria":"InformeFinal"},{"categoria":"EvidenciaEspacio","alcance_id":1}]' \
   -F 'archivos=@informe.pdf' -F 'archivos=@jardin.jpg' \
-  http://localhost:8080/api/tercerizados/atenciones/1/reportes/
+  http://localhost:8000/api/tercerizados/atenciones/1/reportes/
 ```
 
 PDF, JPEG, PNG, DOCX y XLSX, 20 MB por archivo y 100 MB por petición por defecto; límites configurables. Se valida cabecera/estructura básica y se calcula SHA-256. Validación de formato no equivale a análisis antimalware. Documentos Office con expansión superior a 100 MB o más de 10.000 entradas se rechazan.
@@ -158,7 +158,7 @@ export MOD05_TEST_DB_PASSWORD=tu_clave
 
 **La suite vacía las tablas de esa base** entre casos. El guard de configuración exige el sufijo `_test`. Por defecto utiliza `127.0.0.1:55432/mod05_spring_test`, el usuario del sistema y contraseña vacía. Flyway comprueba/aplica el esquema. Incluye autenticación, contrato frontend, filtros, alcances, estados, documentación, rollback durante commit, triggers, precarga y concurrencia real.
 
-Regresión MOD-06, desde `../backend/`: `pytest reportes_indicadores/tests`. Frontend desde `../frontend/`: `npm test`, `npm run build`, `npm run lint`.
+Las pruebas del MOD-06 corren en el mismo `./mvnw test` y usan la misma base `_test`. Frontend desde `../frontend/`: `npm test`, `npm run build`, `npm run lint`.
 
 ## TODO conservados
 

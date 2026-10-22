@@ -11,24 +11,23 @@ Módulo del Sistema integrado de gestión, monitoreo y analítica de las áreas 
 
 ## 2. Stack
 
-- Back-end: Django 5.2 + Django REST Framework + drf-spectacular (OpenAPI).
+- Back-end: Java 21 + Spring Boot 3.5 + springdoc (OpenAPI), en `backend/` (MOD-05 y MOD-06).
 - Front-end: React + TypeScript con Vite.
 - IA: Gemini (Google AI Studio) con el SDK `google-genai`.
 - Datos: simulados en `mock-data/` (JSON) hasta que exista la base de datos PostgreSQL/PostGIS.
 
 ## 3. Cómo levantarlo
 
-Las instrucciones paso a paso para **macOS y Windows** están en [SETUP.md](SETUP.md): requisitos, base de datos PostgreSQL, backend MOD-05 (Spring Boot), backend MOD-06 (Django), frontend, uso diario y problemas frecuentes.
+Las instrucciones paso a paso para **macOS y Windows** están en [SETUP.md](SETUP.md): requisitos, base de datos PostgreSQL, backend (Spring Boot, MOD-05 y MOD-06), frontend, uso diario y problemas frecuentes.
 
 Resumen para quien ya tiene todo instalado (una terminal por servicio):
 
 ```sh
-cd backend-mod05 && ./mvnw spring-boot:run                  # MOD-05 · :8080 (Windows: .\mvnw.cmd)
-cd backend && python manage.py runserver 8000               # MOD-06 · :8000 (con el entorno .venv activo)
+cd backend && ./mvnw spring-boot:run                        # MOD-05 y MOD-06 · :8000 (Windows: .\mvnw.cmd)
 cd frontend && npm run dev                                  # interfaz · :5173
 ```
 
-Vite reenvía `/api/tercerizados` a Spring Boot (8080) y el resto de `/api` a Django (8000); basta con iniciar el servicio del módulo que se quiera usar.
+Vite reenvía `/api/tercerizados` y el resto de `/api` al mismo back-end Spring Boot (8000).
 
 ## 4. Cambio de fuente de datos
 
@@ -49,10 +48,10 @@ Cambia `DATA_SOURCE` en `backend/.env` (`mock` o `db`). Es la única variable qu
 
 ## MOD-05 · Atenciones tercerizadas (Spring Boot)
 
-La implementación de RF-SER-003/004/005/006/011 está en **backend-mod05/**: Java 21, Spring Boot, Spring Security, JDBC, PostgreSQL y Flyway. La app Django anterior de MOD-05 fue retirada; no se migran sus datos ni usuarios. Crear una base nueva para Spring.
+La implementación de RF-SER-003/004/005/006/011 está en **backend/** (paquete `mod05`): Java 21, Spring Boot, Spring Security, JDBC, PostgreSQL y Flyway. La app Django anterior de MOD-05 fue retirada; no se migran sus datos ni usuarios. Crear una base nueva para Spring.
 
-- MOD-05: puerto 8080, `/api/tercerizados/`.
-- MOD-06: continúa en Django (`backend/`), puerto 8000, `/api/v1/`.
+- MOD-05: puerto 8000, `/api/tercerizados/`.
+- MOD-06: mismo back-end (`backend/`), puerto 8000, `/api/v1/`.
 - Frontend: Vite reenvía cada ruta al servicio correspondiente. Los contratos de la API de MOD-05 se conservan, incluidos `/me/`, filtros y nombres descriptivos.
 
-[Instalación, precarga, API, pruebas y TODO de MOD-05](backend-mod05/README.md).
+[Instalación, precarga, API, pruebas y TODO de MOD-05](backend/README-MOD05.md).
