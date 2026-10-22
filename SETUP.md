@@ -5,8 +5,7 @@ El sistema tiene tres piezas. Cada una se ejecuta en su propia terminal:
 | Pieza | Carpeta | Puerto | Para qué |
 |---|---|---|---|
 | Base de datos PostgreSQL | — | 5432 | Datos de MOD-05 |
-| Backend MOD-05 (Spring Boot) | `backend-mod05/` | 8080 | Servicios tercerizados (`/api/tercerizados/`) |
-| Backend MOD-06 (Django) | `backend/` | 8000 | Reportes, indicadores e IA (`/api/v1/`). Opcional si solo pruebas MOD-05 |
+| Backend MOD-05 y MOD-06 (Spring Boot) | `backend/` | 8000 | Servicios tercerizados (`/api/tercerizados/`) y reportes, indicadores e IA (`/api/v1/`) |
 | Frontend (Vite + React) | `frontend/` | 5173 | Interfaz. Reenvía cada ruta de la API a su backend |
 
 Los pasos 1 y 2 de cada sistema operativo se hacen **una sola vez**. Para el día a día, ve a [Uso diario](#uso-diario).
@@ -20,9 +19,8 @@ Los pasos 1 y 2 de cada sistema operativo se hacen **una sola vez**. Para el dí
 | JDK | **21** (exactamente 21; Java 8 u otro no sirve) | MOD-05 |
 | PostgreSQL | 14 o posterior | MOD-05 |
 | Node.js | 20.19+ o 22.12+ | Frontend |
-| Python | 3.10 o posterior | MOD-06 |
 
-**No hace falta instalar Maven.** `backend-mod05/mvnw` (macOS) y `mvnw.cmd` (Windows) descargan Maven 3.9.11 la primera vez en `~/.m2/wrapper` y verifican su SHA-512.
+**No hace falta instalar Maven.** `backend/mvnw` (macOS) y `mvnw.cmd` (Windows) descargan Maven 3.9.11 la primera vez en `~/.m2/wrapper` y verifican su SHA-512.
 
 ---
 
@@ -67,7 +65,7 @@ No hay que crear tablas: Flyway las crea en el primer arranque de Spring.
 ### 3. Backend MOD-05 (Spring Boot)
 
 ```sh
-cd backend-mod05
+cd backend
 cp .env.example .env
 open -e .env
 ```
@@ -84,18 +82,11 @@ Primer arranque, que además precarga catálogos y usuarios de prueba:
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--mod05.seed=true
 ```
 
-El backend está listo cuando `http://localhost:8080/api/tercerizados/docs` abre Swagger.
+El backend está listo cuando `http://localhost:8000/api/docs` abre Swagger.
 
-### 4. Backend MOD-06 (Django), opcional
+### 4. MOD-06
 
-```sh
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env     # funciona tal cual con DATA_SOURCE=mock; GEMINI_API_KEY solo para la IA
-python manage.py runserver 8000
-```
+Va en el mismo back-end del paso 3. Con `DATA_SOURCE=mock` funciona tal cual; `GEMINI_API_KEY` solo hace falta para la IA.
 
 ### 5. Frontend
 
@@ -158,7 +149,7 @@ Ambos comandos piden la contraseña de `postgres`. Cambia `tu_clave` por la que 
 ### 3. Backend MOD-05 (Spring Boot)
 
 ```powershell
-cd backend-mod05
+cd backend
 copy .env.example .env
 notepad .env
 ```
@@ -174,16 +165,9 @@ Primer arranque, con precarga:
 
 En PowerShell, los argumentos `-D…` van entre comillas. Si `mvnw.cmd` falla, instala Maven 3.9 (maven.apache.org), agrégalo al `PATH` y usa `mvn` en lugar de `.\mvnw.cmd`.
 
-### 4. Backend MOD-06 (Django), opcional
+### 4. MOD-06
 
-```powershell
-cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-copy .env.example .env
-python manage.py runserver 8000
-```
+Va en el mismo back-end del paso 3. Con `DATA_SOURCE=mock` funciona tal cual; `GEMINI_API_KEY` solo hace falta para la IA.
 
 ### 5. Frontend
 
@@ -203,8 +187,7 @@ Con todo instalado, abre una terminal por pieza y ejecuta lo siguiente.
 | Pieza | macOS | Windows |
 |---|---|---|
 | PostgreSQL | `brew services start postgresql@16` (o `docker start pg-mod05`) | Ya corre como servicio de Windows |
-| MOD-05 | `cd backend-mod05 && ./mvnw spring-boot:run` | `cd backend-mod05; .\mvnw.cmd spring-boot:run` |
-| MOD-06 | `cd backend && source .venv/bin/activate && python manage.py runserver 8000` | `cd backend; .\.venv\Scripts\Activate.ps1; python manage.py runserver 8000` |
+| Backend (MOD-05 y MOD-06) | `cd backend && ./mvnw spring-boot:run` | `cd backend; .\mvnw.cmd spring-boot:run` |
 | Frontend | `cd frontend && npm run dev` | `cd frontend; npm run dev` |
 
 Repetir la precarga (`--mod05.seed=true`) no rompe nada, pero no hace falta.
@@ -218,8 +201,7 @@ Repetir la precarga (`--mod05.seed=true`) no rompe nada, pero no hace falta.
 
 ```sh
 cd frontend && npm test && npm run lint && npm run build
-cd backend && pytest                      # con el entorno activo
-cd backend-mod05 && ./mvnw test           # necesita una base terminada en _test; ver backend-mod05/README.md
+cd backend && ./mvnw test                 # MOD-05 y MOD-06; necesita una base terminada en _test; ver backend/README-MOD05.md
 ```
 
 ---
@@ -233,8 +215,8 @@ cd backend-mod05 && ./mvnw test           # necesita una base terminada en _test
 | `java -version` dice 21 pero `java_home -v 21` devuelve otra ruta | El JDK de Homebrew no está registrado en macOS. Usa el comando `sudo ln -sfn …` del paso 1. |
 | `Connection refused` o `password authentication failed` al arrancar Spring | PostgreSQL no está corriendo, o `MOD05_DB_PASSWORD` no coincide. |
 | El ingreso de MOD-05 dice credenciales incorrectas | Hay credenciales viejas en el navegador, o la clave no es la de `MOD05_DEMO_PASSWORD`. Cierra sesión o usa una ventana privada. |
-| Reportes (MOD-06) no carga | Django no está levantado en el puerto 8000. MOD-05 funciona igual sin él. |
+| Reportes (MOD-06) no carga | El back-end no está levantado en el puerto 8000. |
 | `Activate.ps1 cannot be loaded` (Windows) | Ejecuta `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |
-| Puerto ocupado (8080, 8000 o 5173) | Cierra la otra instancia, o cambia `PORT` en `backend-mod05/.env`. Si cambias un puerto, ajusta también el proxy en `frontend/vite.config.ts`. |
+| Puerto ocupado (8000 o 5173) | Cierra la otra instancia, o cambia `PORT` en `backend/.env`. Si cambias un puerto, ajusta también el proxy en `frontend/vite.config.ts`. |
 
 Los archivos `.env` y `private-media/`, donde se guardan los documentos subidos, están en `.gitignore`: las contraseñas no se suben al repositorio.
