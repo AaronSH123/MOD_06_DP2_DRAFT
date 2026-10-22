@@ -16,33 +16,19 @@ Módulo del Sistema integrado de gestión, monitoreo y analítica de las áreas 
 - IA: Gemini (Google AI Studio) con el SDK `google-genai`.
 - Datos: simulados en `mock-data/` (JSON) hasta que exista la base de datos PostgreSQL/PostGIS.
 
-## 3. Cómo levantarlo (Windows)
+## 3. Cómo levantarlo
 
-Requisitos: Python 3.10 o superior y Node.js 20.19+ o 22.12+.
+Las instrucciones paso a paso para **macOS y Windows** están en [SETUP.md](SETUP.md): requisitos, base de datos PostgreSQL, backend MOD-05 (Spring Boot), backend MOD-06 (Django), frontend, uso diario y problemas frecuentes.
 
-### Back-end
+Resumen para quien ya tiene todo instalado (una terminal por servicio):
 
-```powershell
-cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-copy .env.example .env      # luego edita DJANGO_SECRET_KEY y GEMINI_API_KEY
-python manage.py runserver
+```sh
+cd backend-mod05 && ./mvnw spring-boot:run                  # MOD-05 · :8080 (Windows: .\mvnw.cmd)
+cd backend && python manage.py runserver 8000               # MOD-06 · :8000 (con el entorno .venv activo)
+cd frontend && npm run dev                                  # interfaz · :5173
 ```
 
-Pruebas: `pytest` (desde `backend/` con el entorno activo).
-
-### Front-end
-
-```powershell
-cd frontend
-npm install
-copy .env.example .env
-npm run dev
-```
-
-Vite reenvía `/api/v1` a Django en `http://localhost:8000` y `/api/tercerizados` a Spring Boot en `http://localhost:8080`; iniciar el servicio del módulo que se quiera usar.
+Vite reenvía `/api/tercerizados` a Spring Boot (8080) y el resto de `/api` a Django (8000); basta con iniciar el servicio del módulo que se quiera usar.
 
 ## 4. Cambio de fuente de datos
 

@@ -4,7 +4,7 @@ Backend independiente para RF-SER-003, RF-SER-004, RF-SER-005, RF-SER-006 y RF-S
 
 ## Arranque local
 
-Requisitos: JDK 21, Maven 3.6.3 o posterior, PostgreSQL 14 o posterior. `JAVA_HOME` debe apuntar al JDK; comprobar `java -version` y `mvn -version`. En macOS con Homebrew, por ejemplo: `export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
+Requisitos: JDK 21 y PostgreSQL 14 o posterior. No hace falta instalar Maven: `./mvnw` (macOS/Linux) o `mvnw.cmd` (Windows) descargan Maven 3.9.11 la primera vez en `~/.m2/wrapper`, verifican su SHA-512 y lo ejecutan; si prefieres tu propio Maven (3.6.3 o posterior), cambia `./mvnw` por `mvn`. `JAVA_HOME` debe apuntar al JDK 21; comprobar `java -version` y `./mvnw -version`. En macOS con Homebrew, por ejemplo: `export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`.
 
 Crear una **base nueva**, por ejemplo `areas_verdes_mod05`, y un usuario propietario. No reutilizar el esquema Django ni sus usuarios. No se realiza conversión de datos antiguos.
 
@@ -13,7 +13,7 @@ Desde `backend-mod05/`:
 ```sh
 cp .env.example .env
 # Editar usuario, contraseña y URL PostgreSQL en .env
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Spring importa `.env` como properties (sin comillas ni `export`). Las variables del entorno también son válidas. Flyway aplica automáticamente `src/main/resources/db/migration/V1__mod05.sql` en la base nueva. Este SQL incluye todas las tablas, restricciones, índices, usuarios/roles y triggers de auditoría; no depende de Django ni de PostGIS. El esquema permanece gestionado por Flyway: no ejecutar el script manualmente después del arranque.
@@ -21,7 +21,7 @@ Spring importa `.env` como properties (sin comillas ni `export`). Las variables 
 Para precargar los catálogos y usuarios demostrativos, configurar `MOD05_DEMO_PASSWORD` (al menos 12 caracteres) y ejecutar:
 
 ```sh
-mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--mod05.seed=true
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--mod05.seed=true
 ```
 
 La precarga solo se activa con el perfil `dev` y el flag explícito. Usuarios: `mod05_jefe`, `mod05_ingeniero`, `mod05_practicante`, con la contraseña indicada. No se imprime la contraseña. Repetir la precarga no cambia usuarios/roles/contraseñas existentes y rechaza colisiones en los catálogos en vez de sobrescribirlas. No importa atenciones históricas. Conserva las vigencias originales de los contratos de ejemplo, válidas en 2026.
@@ -34,7 +34,7 @@ La precarga solo se activa con el perfil `dev` y el flag explícito. Usuarios: `
 Para generar el ejecutable sin correr pruebas de integración:
 
 ```sh
-mvn -DskipTests package
+./mvnw -DskipTests package
 java -jar target/mod05-0.1.0.jar
 ```
 
@@ -153,7 +153,7 @@ createdb -h localhost -U tu_usuario mod05_spring_test
 export MOD05_TEST_DB_URL=jdbc:postgresql://localhost:5432/mod05_spring_test
 export MOD05_TEST_DB_USER=tu_usuario
 export MOD05_TEST_DB_PASSWORD=tu_clave
-mvn test
+./mvnw test
 ```
 
 **La suite vacía las tablas de esa base** entre casos. El guard de configuración exige el sufijo `_test`. Por defecto utiliza `127.0.0.1:55432/mod05_spring_test`, el usuario del sistema y contraseña vacía. Flyway comprueba/aplica el esquema. Incluye autenticación, contrato frontend, filtros, alcances, estados, documentación, rollback durante commit, triggers, precarga y concurrencia real.
